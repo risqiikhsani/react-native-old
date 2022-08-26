@@ -1,6 +1,8 @@
 import React from "react";
+import { useState } from "react";
 import {
   Text,
+  Divider,
   Link,
   HStack,
   Center,
@@ -11,75 +13,155 @@ import {
   extendTheme,
   VStack,
   Box,
+  Icon,
+  IconButton,
 } from "native-base";
 import NativeBaseIcon from "./components/NativeBaseIcon";
 import { Platform } from "react-native";
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-// Define the config
-const config = {
-  useSystemColorMode: false,
-  initialColorMode: "dark",
-};
 
-// extend the theme
-export const theme = extendTheme({ config });
+import HomeScreen from "./components/DrawerComponents/HomeScreen";
+import ChatScreen from "./components/DrawerComponents/ChatScreen";
+import SettingScreen from "./components/DrawerComponents/SettingScreen";
+import MarketplaceScreen from "./components/DrawerComponents/MarketplaceScreen";
+import MyProfileScreen from "./components/DrawerComponents/MyProfileScreen";
+import MyAccountSettingScreen from "./components/DrawerComponents/MyAccountSettingScreen";
+
+import LogIn from "./components/AuthComponents/LogIn";
+import SignUp from "./components/AuthComponents/SignUp";
+import ForgotPassword from "./components/AuthComponents/ForgotPassword";
+
+import DrawerButton from "./components/SmallComponents/DrawerButton";
+import { AntDesign } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons'; 
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { color } from "react-native-reanimated";
+
+
+
+
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
+
+
+
+
+
+const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
+
+
+
+function CustomDrawerContent(props,{navigation}) {
+
+
+
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <Divider/>
+      <DrawerItem
+        label="Help"
+        onPress={() => console.log("help button is pressed")}
+      />
+    </DrawerContentScrollView>
+  );
+}
+
 
 export default function App() {
+  const {
+    colorMode,
+    toggleColorMode
+  } = useColorMode();
+
+  const [isSignedIn,setIsSignedIn]= useState(true)
+
+
+  const customTheme = extendTheme({});
+  //https://docs.nativebase.io/customizing-components
+
+
   return (
-    <NativeBaseProvider>
-      <Center
-        _dark={{ bg: "blueGray.900" }}
-        _light={{ bg: "blueGray.50" }}
-        px={4}
-        flex={1}
+    <NativeBaseProvider theme={customTheme}>
+    <NavigationContainer>
+
+
+      <Drawer.Navigator 
+      useLegacyImplementation 
+      initialRouteName="Home"
+      drawerContent={(props) => <CustomDrawerContent {...props}  />}
+      screenOptions={{
+        headerLeft:() => (
+          <DrawerButton/>
+        ),
+        drawerActiveTintColor:"red",
+        drawerInactiveTintColor:"red",
+        drawerStyle:{
+          backgroundColor: "white",
+        },
+      }}
       >
-        <VStack space={5} alignItems="center">
-          <NativeBaseIcon />
-          <Heading size="lg">Welcome to NativeBase</Heading>
-          <HStack space={2} alignItems="center">
-            <Text>Edit</Text>
-            <Box
-              _web={{
-                _text: {
-                  fontFamily: "monospace",
-                  fontSize: "sm",
-                },
-              }}
-              px={2}
-              py={1}
-              _dark={{ bg: "blueGray.800" }}
-              _light={{ bg: "blueGray.200" }}
-            >
-              App.js
-            </Box>
-            <Text>and save to reload.</Text>
-          </HStack>
-          <Link href="https://docs.nativebase.io" isExternal>
-            <Text color="primary.500" underline fontSize={"xl"}>
-              Learn NativeBase
-            </Text>
-          </Link>
-          <ToggleDarkMode />
-        </VStack>
-      </Center>
+
+
+
+        {isSignedIn ? (
+          <>
+            <Drawer.Screen name="Home" component={HomeScreen} options={{ 
+              headerShown: false,
+              drawerIcon: () => (
+                <Icon as={AntDesign} name="home" />
+              ),
+              }}/>
+            <Drawer.Screen name="Chat" component={ChatScreen} options={{          
+              drawerIcon: () => (
+                <Icon as={Ionicons} name="chatbubble-ellipses-outline" />
+              ),}}/>
+            <Drawer.Screen name="Marketplace" component={MarketplaceScreen} options={{          
+              drawerIcon: () => (
+                <Icon as={Entypo} name="shop" />
+              ),}}/>
+
+            <Drawer.Screen name="MyProfile" component={MyProfileScreen} options={{          
+              drawerIcon: () => (
+                <Icon as={AntDesign} name="user"  />
+              ),}}/>
+            <Drawer.Screen name="MyAccountSetting" component={MyAccountSettingScreen} options={{          
+              drawerIcon: () => (
+                <Icon as={MaterialCommunityIcons} name="shield-account-outline" />
+              ),}}/>
+            <Drawer.Screen name="Setting" component={SettingScreen}options={{          
+              drawerIcon: () => (
+                <Icon as={AntDesign} name="setting"  />
+              ),}}/>
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="LogIn" component={LogIn} options={{
+              headerShown:false,
+            }}/>
+            <Stack.Screen name="SignUp" component={SignUp} options={{
+              headerShown:false,
+            }} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{
+              headerShown:false,
+            }} />
+          </>)}
+
+
+      </Drawer.Navigator>
+
+
+    </NavigationContainer>
     </NativeBaseProvider>
+
   );
 }
 
-// Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light"}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
-  );
-}

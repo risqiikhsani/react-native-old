@@ -1,0 +1,3 @@
+NativaBase's Menu crashed the app
+
+solution = https://github.com/GeekyAnts/NativeBase/issues/4730#issuecomment-1093526143
